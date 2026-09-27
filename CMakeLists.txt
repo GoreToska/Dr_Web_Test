@@ -8,8 +8,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(archive_parser arc_parse/archive_parser.cpp)
 target_include_directories(archive_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Поиск ключевых слов. Собирается с выключенными исключениями
+add_library(keyword_search keyword_search/keyword_searcher.cpp)
+target_include_directories(keyword_search PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (MSVC)
+    # Перекрывает глобальный /EHsc только для этой библиотеки (cl выдаст предупреждение D9025)
+    target_compile_options(keyword_search PRIVATE /EHs-c-)
+else ()
+    target_compile_options(keyword_search PRIVATE -fno-exceptions)
+endif ()
+
 add_executable(Dr_Web_Test main.cpp)
-target_link_libraries(Dr_Web_Test PRIVATE archive_parser)
+target_link_libraries(Dr_Web_Test PRIVATE archive_parser keyword_search)
 
 # GoogleTest
 include(FetchContent)
@@ -29,3 +40,7 @@ target_link_libraries(archive_parser_tests PRIVATE archive_parser GTest::gtest_m
 
 include(GoogleTest)
 gtest_discover_tests(archive_parser_tests)
+
+add_executable(keyword_searcher_tests tests/keyword_searcher_test.cpp)
+target_link_libraries(keyword_searcher_tests PRIVATE keyword_search GTest::gtest_main)
+gtest_discover_tests(keyword_searcher_tests)
