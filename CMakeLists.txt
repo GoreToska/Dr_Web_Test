@@ -19,6 +19,10 @@ else ()
     target_compile_options(keyword_search PRIVATE -fno-exceptions)
 endif ()
 
+# Функция, переписанная с ассемблера на C
+add_library(asm_to_c asm_to_c/is_non_zero.c)
+target_include_directories(asm_to_c PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(Dr_Web_Test main.cpp)
 target_link_libraries(Dr_Web_Test PRIVATE archive_parser keyword_search)
 
